@@ -71,7 +71,7 @@ def find_snp_ind(text):  # return the index of the snp in the marker
 # print(all_marker_len)
 for index in range(0, all_marker_len):  # finding the items
     marker_name_current_raw = marker_name[index]
-    marker_name_current = marker_name_current_raw[4:]
+    marker_name_current = marker_name_current_raw[5:]
     marker_ID_current_raw = marker_ID[index]
     marker_ID_current = marker_ID_current_raw[4:]
     Allele = marker_alleles_all[index]
@@ -101,3 +101,52 @@ for index in range(0, all_marker_len):  # finding the items
 the output and print two fasta files with full marker sequences, one file for allele 1 and the
 other for allele 2. The fasta headers should only include the marker name#
 '''
+
+# first create a list of marker_names and a list of marker_seq for each allele
+# create a dict from these two lists
+# write then into fasta file
+list_name = []
+list_seq = []
+
+for index in range(0, all_marker_len):  # finding the items
+    marker_name_current_raw = marker_name[index]
+    marker_name_current = marker_name_current_raw[5:]
+    list_name.append(marker_name_current)
+print(list_name)
+print(len(list_name))
+
+#list_seq = [sequence1, sequence2, sequence3, sequence4]
+
+# list_name = [name1, name2, name3, name4]
+
+# dict_s_n = dict(zip(list_seq & list_name))
+
+# o_file = open("fasta_allele_1.txt", "w")
+o_file = open("fasta_allele_1.txt", "w")
+# write a title of names:
+o_file.write(">")
+for index in range(len(list_name)):
+    o_file.write(list_name[index] + ",")
+# write allele 1 seq
+for index in range(len(list_name)):
+    Allele = marker_alleles_all[index]
+    Allele_1 = Allele[2:3]  # c. Marker allele 1
+    full_marker_seq_single_marker = full_marker_seq_raw[index]
+    full_marker_seq = full_marker_seq_single_marker[2:]
+    full_marker_seq_allele_1 = put_allele(full_marker_seq, Allele_1)  # e. Full marker sequence with allele 1
+    o_file.write(">" + full_marker_seq_allele_1 + "\n")
+o_file.close()
+o_file = open("fasta_allele_2.txt", "w")
+# write a title of names:
+o_file.write(">")
+for index in range(len(list_name)):
+    o_file.write(list_name[index] + ",")
+# write allele 2 seq
+for index in range(len(list_name)):
+    Allele = marker_alleles_all[index]
+    Allele_2 = Allele[4:5]  # c. Marker allele 2
+    full_marker_seq_single_marker = full_marker_seq_raw[index]
+    full_marker_seq = full_marker_seq_single_marker[2:]
+    full_marker_seq_allele_2 = put_allele(full_marker_seq, Allele_2)  # f. Full marker sequence with allele 2
+    o_file.write(">" + full_marker_seq_allele_2 + "\n")
+o_file.close()
