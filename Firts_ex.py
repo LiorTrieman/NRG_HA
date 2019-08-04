@@ -16,7 +16,9 @@ g. Marker length - e.g. 63
 h. Position of SNP in the marker (0-based index) - e.g. 54
 """
 import re  # in order to use regular expressions
-
+import numpy as np # arrange data
+import matplotlib.pyplot as plt  # create plots and graphs
+from collections import Counter
 
 with open('TAMU_SNP63K_69997.fasta', 'r') as file:  # read the fasta file
     data = file.read().replace('\n', '')
@@ -55,7 +57,7 @@ flag_more_than_one_snp = [0] * len(marker_alleles_all)
 def put_allele(text, allele):  # replace one of [Y, M, K, R, W, S] with the alleles
     for ch in ['Y', 'M', 'K', 'R', 'W', 'S']:
         if ch in text:
-            text = text.replace(ch, allele) # replace with one of the alleles
+            text = text.replace(ch, allele)  # replace with one of the alleles
     return text
 
 
@@ -90,11 +92,11 @@ for index in range(0, all_marker_len):  # finding the items
         flag_more_than_one_snp[index] = 0 '''
     row = marker_name_current + "," + marker_ID_current + "," + Allele_1 + "," + Allele_2 + "," + full_marker_seq_allele_1 \
           + "," + full_marker_seq_allele_2 + "," + str(marker_length) + "," + str( ind_snp) + "," + "\n"
-    csv.write(row)
+    csv.write(row) # not the fastest way of doing it..
 
 # print(flag_more_than_one_snp)
 
-# QUESTION #2#
+# PART #1 QUESTION #2
 #
 #
 ''' Use the output of the above script to simplify the fasta - write a script that will read
@@ -115,13 +117,7 @@ for index in range(0, all_marker_len):  # finding the items
 print(list_name)
 print(len(list_name))
 
-#list_seq = [sequence1, sequence2, sequence3, sequence4]
 
-# list_name = [name1, name2, name3, name4]
-
-# dict_s_n = dict(zip(list_seq & list_name))
-
-# o_file = open("fasta_allele_1.txt", "w")
 o_file = open("fasta_allele_1.txt", "w")
 # write a title of names:
 o_file.write(">")
@@ -150,3 +146,70 @@ for index in range(len(list_name)):
     full_marker_seq_allele_2 = put_allele(full_marker_seq, Allele_2)  # f. Full marker sequence with allele 2
     o_file.write(">" + full_marker_seq_allele_2 + "\n")
 o_file.close()
+
+
+#  PLOTING THE STATISTICS OF THE DATA
+
+# Bar Chart for Frequencies of SNP types (C/T, C/G. C/A, A/T, A/G, G/T)
+# marker_alleles_all -raw list of all SNP types, need to extract freqs
+num_total_snp = len(marker_alleles_all)
+list_of_snp = []
+
+
+def cut_head_of_snp_string(raw_SNP):
+    SNP = raw_SNP[2:]
+    return SNP
+
+
+for index in range(0, num_total_snp):
+    snp_type = cut_head_of_snp_string(marker_alleles_all[index])
+    list_of_snp.append(snp_type)
+
+snp_freqs = []
+snp_objects = Counter(list_of_snp).keys()  # equals to list(set(words))
+snp_counts = Counter(list_of_snp).values()  # counts the elements' appearances
+for index in snp_counts:
+    freq = index/num_total_snp
+    snp_freqs.append(freq)
+y_pos = np.arange(len(snp_objects))
+plt.figure(1)  # new figure
+fig = plt.bar(y_pos, snp_freqs, align='center', alpha=0.5)
+plt.xticks(y_pos, snp_objects)
+plt.ylabel('Frequencies')
+plt.title('Frequencies of SNP types')
+plt.show()
+# Marker length - Histogram
+list_of_marker_length = []
+
+
+def cut_head_of_marker_seq_string(raw_str):
+    length = raw_str[2:]
+    return length
+
+
+for index in range(0, num_total_snp):
+    marker_str = cut_head_of_marker_seq_string(full_marker_seq_raw[index])
+    marker_len = len(marker_str)
+    list_of_marker_length.append(marker_len)
+
+# print(list_of_marker_length)  # test print
+# print(len(list_of_marker_length))  # test print
+plt.figure(2)
+fig_lengths = plt.hist(list_of_marker_length, range=(0, 400), density=False, histtype='bar', align='mid', orientation='vertical')
+plt.ylabel('Marker Lengths counts')
+plt.xlabel('Marker Lengths (number of Nucleotide)')
+plt.title('Marker Lengths Histogram')
+plt.show()
+''' bins=None, , density=None, weights=None, cumulative=False,\
+                       bottom=None, , rwidth=None, log=False, color=None, label=None,\
+                       stacked=False, normed=None, *, data=None, **kwargs)'''
+
+# Position of SNP in marker sequence - normalized to 1 (pos/len)
+# correlation between snp typp (c/t or c/g for example) and marker length.
+# correlation between snp location and marker length
+
+
+# ----------Part 2 - genotyping data-----------##
+# ---------------------------------------------##
+
+
